@@ -1,10 +1,12 @@
 package com.techie.ebanking.controller
 
-import com.techie.ebanking.dto.AccountRequest
+import com.techie.ebanking.dto.request.AccountRequest
+import com.techie.ebanking.dto.request.AmountDeposit
 import com.techie.ebanking.dto.response.OkResponse
 import com.techie.ebanking.service.AccountService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -18,6 +20,14 @@ class AccountController(private val accountService: AccountService) {
         val savedAccount = accountService.createAccount(accountRequest)
         return ResponseEntity.ok(OkResponse(
             data = savedAccount
+        ))
+    }
+
+    @PutMapping("/deposit")
+    fun deposit(@RequestBody amountDeposit: AmountDeposit): ResponseEntity<OkResponse> {
+        val newBalance = accountService.deposit(amountDeposit)
+        return ResponseEntity.ok(OkResponse(
+            data = newBalance
         ))
     }
 }
