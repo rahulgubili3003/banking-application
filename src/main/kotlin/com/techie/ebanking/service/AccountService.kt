@@ -6,27 +6,32 @@ import com.techie.ebanking.entity.Account
 import com.techie.ebanking.repository.AccountRepository
 import org.springframework.stereotype.Service
 
+private const val ACCOUNT_NOT_PRESENT = "Account Not Present"
+
+private const val ACCOUNT_BALANCE_INSUFFICIENT = "Account Balance Insufficient"
+
 @Service
 class AccountService(private val accountRepository: AccountRepository) {
 
     fun deposit(deposit: AmountDepositOrWithdraw): Double {
         val account = accountRepository.findAccountByAccountNumber(deposit.accountNo)
-        val newBalance = account.balance + deposit.amount
-        account.balance = newBalance
-        val savedEntity = accountRepository.save(account)
-        return savedEntity.balance
+        val newBalance = account.map { it.balance + deposit.amount }.orElseThrow { RuntimeException(ACCOUNT_NOT_PRESENT) }
+        accountRepository.save(account.get().apply { balance = newBalance })
+        return newBalance
     }
 
     fun withdraw(withdraw: AmountDepositOrWithdraw): Double {
-        val account = accountRepository.findAccountByAccountNumber(withdraw.accountNo)
-        val balance = account.balance
-        var newBalance = balance - withdraw.amount
-        if(balance == 0.0 || newBalance < 0.0) {
-            newBalance = 0.0
+        val optionalAccount = accountRepository.findAccountByAccountNumber(withdraw.accountNo)
+        val eligible = optionalAccount.map { it.balance >= withdraw.amount }.orElseThrow { RuntimeException(
+            ACCOUNT_NOT_PRESENT)
         }
-        account.balance = newBalance
-        val savedEntity = accountRepository.save(account)
-        return savedEntity.balance
+        if (!eligible) {
+            throw RuntimeException(ACCOUNT_BALANCE_INSUFFICIENT)
+        }
+        val account = optionalAccount.get()
+        val newBalance =account.balance - withdraw.amount
+        accountRepository.save(optionalAccount.get().apply { balance = newBalance })
+        return newBalance
     }
 
 
@@ -40,5 +45,11 @@ class AccountService(private val accountRepository: AccountRepository) {
             name = savedAccount.name,
             accountNo = savedAccount.accountNumber
         )
+    }
+
+    fun fetchBalance(accountNumber: String): Double? {
+        val optionalAccount = accountRepository.findAccountByAccountNumber(accountNumber)
+        return optionalAccount.map { account -> account.balance }
+            .orElseThrow { RuntimeException(ACCOUNT_NOT_PRESENT) }
     }
 }
