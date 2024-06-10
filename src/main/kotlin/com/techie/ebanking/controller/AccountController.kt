@@ -5,6 +5,8 @@ import com.techie.ebanking.dto.request.AmountDepositOrWithdraw
 import com.techie.ebanking.dto.response.OkResponse
 import com.techie.ebanking.service.AccountService
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -36,6 +38,16 @@ class AccountController(private val accountService: AccountService) {
         return ResponseEntity.ok(
             OkResponse(
             data = newBalance
+        )
+        )
+    }
+
+    @GetMapping("/getBalance/{accountNumber}")
+    fun getBalance(@PathVariable accountNumber: String): ResponseEntity<OkResponse> {
+        val balance = accountService.fetchBalance(accountNumber)
+        return ResponseEntity.ok(
+            OkResponse(
+            data = balance
         )
         )
     }
