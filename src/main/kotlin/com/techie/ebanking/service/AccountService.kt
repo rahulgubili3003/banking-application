@@ -15,21 +15,23 @@ class AccountService(private val accountRepository: AccountRepository) {
 
     fun deposit(deposit: AmountDepositOrWithdraw): Double {
         val account = accountRepository.findAccountByAccountNumber(deposit.accountNo)
-        val newBalance = account.map { it.balance + deposit.amount }.orElseThrow { RuntimeException(ACCOUNT_NOT_PRESENT) }
+        val newBalance =
+            account.map { it.balance + deposit.amount }.orElseThrow { RuntimeException(ACCOUNT_NOT_PRESENT) }
         accountRepository.save(account.get().apply { balance = newBalance })
         return newBalance
     }
 
     fun withdraw(withdraw: AmountDepositOrWithdraw): Double {
         val optionalAccount = accountRepository.findAccountByAccountNumber(withdraw.accountNo)
-        val eligible = optionalAccount.map { it.balance >= withdraw.amount }.orElseThrow { RuntimeException(
-            ACCOUNT_NOT_PRESENT)
+        val eligible = optionalAccount.map { it.balance >= withdraw.amount }.orElseThrow {
+            RuntimeException(
+                ACCOUNT_NOT_PRESENT
+            )
         }
         if (!eligible) {
             throw RuntimeException(ACCOUNT_BALANCE_INSUFFICIENT)
         }
-        val account = optionalAccount.get()
-        val newBalance =account.balance - withdraw.amount
+        val newBalance = optionalAccount.get().balance - withdraw.amount
         accountRepository.save(optionalAccount.get().apply { balance = newBalance })
         return newBalance
     }
