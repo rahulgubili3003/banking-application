@@ -1,7 +1,7 @@
 package com.techie.ebanking.controller
 
 import com.techie.ebanking.dto.request.AccountRequest
-import com.techie.ebanking.dto.request.AmountDeposit
+import com.techie.ebanking.dto.request.AmountDepositOrWithdraw
 import com.techie.ebanking.dto.response.OkResponse
 import com.techie.ebanking.service.AccountService
 import org.springframework.http.ResponseEntity
@@ -23,11 +23,20 @@ class AccountController(private val accountService: AccountService) {
         ))
     }
 
+    @PutMapping("/withdraw")
+    fun withdraw(@RequestBody amountDepositOrWithdraw: AmountDepositOrWithdraw): ResponseEntity<OkResponse> {
+        val updatedBal = accountService.withdraw(amountDepositOrWithdraw)
+        return ResponseEntity.ok(OkResponse(data = updatedBal))
+    }
+
+
     @PutMapping("/deposit")
-    fun deposit(@RequestBody amountDeposit: AmountDeposit): ResponseEntity<OkResponse> {
-        val newBalance = accountService.deposit(amountDeposit)
-        return ResponseEntity.ok(OkResponse(
+    fun deposit(@RequestBody amountDepositOrWithdraw: AmountDepositOrWithdraw): ResponseEntity<OkResponse> {
+        val newBalance = accountService.deposit(amountDepositOrWithdraw)
+        return ResponseEntity.ok(
+            OkResponse(
             data = newBalance
-        ))
+        )
+        )
     }
 }
