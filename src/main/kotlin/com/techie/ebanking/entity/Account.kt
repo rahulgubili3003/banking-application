@@ -33,7 +33,7 @@ data class Account(
     val name: String,
 
     @Column(name = "balance")
-    val balance: Double = 0.0,
+    var balance: Double = 0.0,
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
