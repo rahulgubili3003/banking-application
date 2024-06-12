@@ -13,6 +13,9 @@ private const val ACCOUNT_BALANCE_INSUFFICIENT = "Account Balance Insufficient"
 @Service
 class AccountService(private val accountRepository: AccountRepository) {
 
+    /**
+     * Deposits money in the Bank
+     */
     fun deposit(deposit: AmountDepositOrWithdraw): Double {
         val account = accountRepository.findAccountByAccountNumber(deposit.accountNo)
         val newBalance =
